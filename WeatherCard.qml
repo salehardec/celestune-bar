@@ -3,6 +3,7 @@ import Quickshell.Io
 import qs.Commons
 import qs.Ui
 import "I18n.js" as I18n
+import "Dates.js" as Dates
 
 BorderSurface {
   id: root
@@ -297,7 +298,7 @@ BorderSurface {
           Text {
             text: root.editingLocation
               ? (root.locationError !== "" ? root.locationError : I18n.tr("weather.editHint"))
-              : Qt.formatDate(root.now, "dddd, d MMMM")
+              : Dates.fullDate(root.now)
             color: Qt.darker(root.bar.foreground, 1.45)
             font.family: root.bar.fontFamily
             font.pixelSize: Style.font.caption
@@ -342,7 +343,7 @@ BorderSurface {
 
           Button {
             visible: root.editingLocation
-            text: "AUTO"
+            text: I18n.tr("weather.auto")
             tooltipText: I18n.tr("weather.deviceTooltip")
             foreground: root.bar.foreground
             fontSize: Style.font.caption
@@ -404,7 +405,7 @@ BorderSurface {
               Text {
                 width: parent.width
                 horizontalAlignment: Text.AlignHCenter
-                text: root.weather ? root.weather.dayName(modelData.date).slice(0, 3).toUpperCase() : "---"
+                text: root.weather ? Dates.shortWeekday(modelData.date) : "---"
                 color: Qt.darker(root.bar.foreground, 1.35)
                 font.family: root.bar.fontFamily
                 font.pixelSize: Style.font.caption
