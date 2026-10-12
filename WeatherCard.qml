@@ -425,7 +425,7 @@ BorderSurface {
 
                 Text {
                   text: root.weather
-                    ? root.weather.bareTempForDay(modelData, "max") + "°"
+                    ? root.weather.bareTempForDay(modelData, "max")
                     : "--°"
                   color: root.bar.foreground
                   font.family: root.bar.fontFamily
@@ -435,7 +435,7 @@ BorderSurface {
 
                 Text {
                   text: root.weather
-                    ? root.weather.bareTempForDay(modelData, "min") + "°"
+                    ? root.weather.bareTempForDay(modelData, "min")
                     : "--°"
                   color: Qt.darker(root.bar.foreground, 1.45)
                   font.family: root.bar.fontFamily
