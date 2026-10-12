@@ -95,7 +95,7 @@ BarWidget {
   }
 
   function barLabel() {
-    var clock = Qt.formatDateTime(now, activeClockFormat)
+    var clock = Qt.locale().toString(now, activeClockFormat)
     var weather = weatherIcon + (weatherTemp !== "" ? " " + weatherTemp : "")
     var media = hasMedia ? playIcon + " " + shortText(mediaTitle, 18) : ""
     if (vertical) return weatherIcon

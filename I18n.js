@@ -47,7 +47,7 @@ var STRINGS = {
     "media.unknownTrack": "Неизвестный трек",
     "media.unknownArtist": "Неизвестный исполнитель",
     "weather.location": "Погода",
-    "weather.feelsLike": "Ощущается как ",
+    "weather.feelsLike": "Ощущается ",
     "weather.loading": "Обновляем прогноз…",
     "weather.cityPlaceholder": "Найти город",
     "weather.editHint": "Enter: сохранить · Авто: геопозиция устройства",

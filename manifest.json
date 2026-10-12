@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "salehardec.celestune-bar",
   "name": "My Celestune Bar",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "author": "oxrapzz (fork: salehardec)",
   "license": "GPL-3.0-only",
   "description": "A unified bar widget with calendar, weather, and media controls for Omarchy Shell.",
