@@ -21,3 +21,11 @@ function monthYear(date) {
     y: date.getFullYear()
   })
 }
+
+// Forecast day label from a "YYYY-MM-DD" string: "TUE" or "ВТ"; "" if invalid.
+function shortWeekday(dateString) {
+  if (!dateString) return ""
+  var d = new Date(dateString + "T12:00:00")
+  if (isNaN(d.getTime())) return ""
+  return I18n.tr("date.weekdaysShort")[d.getDay()]
+}

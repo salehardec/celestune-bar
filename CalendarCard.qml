@@ -84,7 +84,7 @@ BorderSurface {
       id: daysRow
       width: parent.width
       height: Style.space(24)
-      locale: Qt.locale("ru_RU")
+      locale: Qt.locale()
 
       delegate: Text {
         required property var model
@@ -105,7 +105,7 @@ BorderSurface {
       height: parent.height - Style.space(60)
       month: root.shownDate.getMonth()
       year: root.shownDate.getFullYear()
-      locale: Qt.locale("ru_RU")
+      locale: Qt.locale()
       spacing: Style.space(2)
 
       delegate: Item {
