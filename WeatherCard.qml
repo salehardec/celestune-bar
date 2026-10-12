@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell.Io
 import qs.Commons
 import qs.Ui
+import "I18n.js" as I18n
 
 BorderSurface {
   id: root
@@ -19,12 +20,12 @@ BorderSurface {
   readonly property string temperature: weather && weather.reportTempNum !== ""
     ? weather.reportTempNum + weather.tempUnit : "--°"
   readonly property string location: weather && weather.reportLocation !== ""
-    ? weather.reportLocation : "Weather"
+    ? weather.reportLocation : I18n.tr("weather.location")
   readonly property string condition: {
     var current = weather ? weather.current : null
     if (current && current.weatherDesc && current.weatherDesc.length > 0)
       return String(current.weatherDesc[0].value || "")
-    return weather && weather.reportFeels !== "" ? "Feels like " + weather.reportFeels : "Updating forecast…"
+    return weather && weather.reportFeels !== "" ? I18n.tr("weather.feelsLike") + weather.reportFeels : I18n.tr("weather.loading")
   }
   readonly property var forecast: weather && weather.forecastDays
     ? weather.forecastDays.slice(0, 3) : []
@@ -61,7 +62,7 @@ BorderSurface {
     locationError = ""
     geocodeProc.command = ["curl", "-fsS", "--max-time", "5",
       "https://geocoding-api.open-meteo.com/v1/search?name="
-        + encodeURIComponent(query) + "&count=1&language=id&format=json"]
+        + encodeURIComponent(query) + "&count=1&language=" + I18n.lang() + "&format=json"]
     geocodeProc.running = true
   }
 
@@ -107,7 +108,7 @@ BorderSurface {
     deviceLocationResolved = true
     if (!best) {
       savingLocation = false
-      locationError = "Lokasi perangkat tidak tersedia"
+      locationError = I18n.tr("weather.deviceUnavailable")
       return
     }
 
@@ -115,11 +116,11 @@ BorderSurface {
     // manual city with that misleading result; only accept a real Wi-Fi/GPS fix.
     if (best.accuracy > 5000) {
       savingLocation = false
-      locationError = "Lokasi perangkat belum akurat"
+      locationError = I18n.tr("weather.deviceInaccurate")
       return
     }
 
-    applyLocation("Lokasi saat ini", best.latitude, best.longitude)
+    applyLocation(I18n.tr("weather.currentLocation"), best.latitude, best.longitude)
   }
 
   Process {
@@ -135,14 +136,14 @@ BorderSurface {
             ? parsed.results[0] : null
           if (!result) {
             root.savingLocation = false
-            root.locationError = "Lokasi tidak ditemukan"
+            root.locationError = I18n.tr("weather.notFound")
             return
           }
           root.applyLocation(String(result.name || locationField.text.trim()),
             Number(result.latitude), Number(result.longitude))
         } catch (error) {
           root.savingLocation = false
-          root.locationError = "Gagal mencari lokasi"
+          root.locationError = I18n.tr("weather.searchFailed")
         }
       }
     }
@@ -150,7 +151,7 @@ BorderSurface {
     onExited: function(exitCode) {
       if (exitCode !== 0 && root.savingLocation) {
         root.savingLocation = false
-        root.locationError = "Gagal mencari lokasi"
+        root.locationError = I18n.tr("weather.searchFailed")
       }
     }
   }
@@ -172,8 +173,8 @@ BorderSurface {
       if (!root.deviceLocationResolved && root.savingLocation) {
         root.savingLocation = false
         root.locationError = exitCode === 127
-          ? "GeoClue belum terpasang"
-          : "Lokasi perangkat tidak tersedia"
+          ? I18n.tr("weather.geoclueMissing")
+          : I18n.tr("weather.deviceUnavailable")
       }
     }
   }
@@ -187,7 +188,7 @@ BorderSurface {
       if (!root.deviceLocationResolved) {
         root.deviceLocationResolved = true
         root.savingLocation = false
-        root.locationError = "Lokasi perangkat tidak tersedia"
+        root.locationError = I18n.tr("weather.deviceUnavailable")
       }
     }
   }
@@ -278,7 +279,7 @@ BorderSurface {
             visible: root.editingLocation
             width: parent.width
             enabled: !root.savingLocation
-            placeholderText: "Cari kota"
+            placeholderText: I18n.tr("weather.cityPlaceholder")
             foreground: root.bar.foreground
             font.family: root.bar.fontFamily
 
@@ -295,7 +296,7 @@ BorderSurface {
 
           Text {
             text: root.editingLocation
-              ? (root.locationError !== "" ? root.locationError : "Enter: simpan · Auto: lokasi perangkat")
+              ? (root.locationError !== "" ? root.locationError : I18n.tr("weather.editHint"))
               : Qt.formatDate(root.now, "dddd, d MMMM")
             color: Qt.darker(root.bar.foreground, 1.45)
             font.family: root.bar.fontFamily
@@ -311,7 +312,7 @@ BorderSurface {
           Button {
             visible: !root.editingLocation
             iconText: ""
-            tooltipText: "Ganti lokasi / gunakan otomatis"
+            tooltipText: I18n.tr("weather.changeLocation")
             foreground: root.bar.foreground
             horizontalPadding: Style.spacing.controlPaddingY
             verticalPadding: Style.spacing.controlPaddingY
@@ -321,7 +322,7 @@ BorderSurface {
           Button {
             visible: !root.editingLocation
             iconText: "󰑐"
-            tooltipText: "Perbarui cuaca"
+            tooltipText: I18n.tr("weather.refresh")
             foreground: root.bar.foreground
             horizontalPadding: Style.spacing.controlPaddingY
             verticalPadding: Style.spacing.controlPaddingY
@@ -332,7 +333,7 @@ BorderSurface {
             visible: root.editingLocation
             iconText: root.savingLocation ? "󰦖" : "✓"
             iconSpinning: root.savingLocation
-            tooltipText: "Simpan lokasi"
+            tooltipText: I18n.tr("weather.saveLocation")
             foreground: root.bar.foreground
             horizontalPadding: Style.spacing.controlPaddingY
             verticalPadding: Style.spacing.controlPaddingY
@@ -342,7 +343,7 @@ BorderSurface {
           Button {
             visible: root.editingLocation
             text: "AUTO"
-            tooltipText: "Lokasi perangkat melalui GeoClue"
+            tooltipText: I18n.tr("weather.deviceTooltip")
             foreground: root.bar.foreground
             fontSize: Style.font.caption
             horizontalPadding: Style.spacing.controlPaddingY
@@ -353,7 +354,7 @@ BorderSurface {
           Button {
             visible: root.editingLocation
             iconText: "✕"
-            tooltipText: "Batal"
+            tooltipText: I18n.tr("weather.cancel")
             foreground: root.bar.foreground
             horizontalPadding: Style.spacing.controlPaddingY
             verticalPadding: Style.spacing.controlPaddingY

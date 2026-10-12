@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell
 import qs.Commons
 import qs.Ui
+import "I18n.js" as I18n
 
 BarWidget {
   id: root
@@ -14,7 +15,7 @@ BarWidget {
   readonly property var weatherPanel: weatherLoader.item
   readonly property bool hasMedia: activePlayer !== null
     && ((activePlayer.trackTitle || "") !== "" || (activePlayer.trackArtist || "") !== "")
-  readonly property string mediaTitle: hasMedia ? (activePlayer.trackTitle || "Unknown track") : ""
+  readonly property string mediaTitle: hasMedia ? (activePlayer.trackTitle || I18n.tr("media.unknownTrack")) : ""
   readonly property string playIcon: activePlayer && activePlayer.isPlaying ? "󰏤" : "󰐊"
   readonly property string weatherIcon: weatherPanel && weatherPanel.label !== ""
     ? weatherPanel.label : "󰖐"
@@ -146,7 +147,7 @@ BarWidget {
     text: root.barLabel()
     active: root.opened || (root.weatherPanel && root.weatherPanel.opened)
     horizontalMargin: 7
-    tooltipText: "Dashboard\nKlik: buka · Tengah: play/pause · Kanan: format jam · Gulir: ganti lagu"
+    tooltipText: I18n.tr("bar.tooltip")
 
     onPressed: function(button) {
       if (button === Qt.MiddleButton) root.mediaAction("playPause")
@@ -204,7 +205,7 @@ BarWidget {
     open: root.opened
     centerOnBar: true
     focusTarget: keyCatcher
-    contentWidth: popup.fittedContentWidth(Style.space(760))
+    contentWidth: popup.fittedContentWidth(dashboard.implicitWidth)
     contentHeight: popup.fittedContentHeight(dashboard.implicitHeight)
 
     PanelKeyCatcher {
@@ -220,6 +221,7 @@ BarWidget {
         weather: root.weatherPanel
         mediaService: root.mediaService
         now: root.now
+        opened: root.opened
       }
     }
   }

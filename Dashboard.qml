@@ -8,17 +8,29 @@ Item {
   property var weather: null
   property var mediaService: null
   property date now: new Date()
+  property bool opened: false
   readonly property bool editingLocation: weatherCard.editingLocation
 
-  implicitWidth: Style.space(760)
+  // Show the current month and day each time the dashboard opens.
+  onOpenedChanged: if (opened) calendarCard.resetToday()
+
+  implicitWidth: Style.space(972)
   implicitHeight: Style.space(420)
 
   Row {
     anchors.fill: parent
     spacing: Style.space(12)
 
+    ClockCard {
+      id: clockCard
+      width: Style.space(200)
+      height: parent.height
+      bar: root.bar
+      opened: root.opened
+    }
+
     Column {
-      width: parent.width - mediaCard.width - parent.spacing
+      width: parent.width - clockCard.width - mediaCard.width - parent.spacing * 2
       height: parent.height
       spacing: Style.space(12)
 
@@ -32,6 +44,7 @@ Item {
       }
 
       CalendarCard {
+        id: calendarCard
         width: parent.width
         height: parent.height - Style.space(144)
         bar: root.bar
