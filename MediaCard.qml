@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Effects
 import qs.Commons
 import qs.Ui
+import "I18n.js" as I18n
 
 BorderSurface {
   id: root
@@ -12,9 +13,9 @@ BorderSurface {
   readonly property var activePlayer: mediaService ? mediaService.activePlayer : null
   readonly property bool hasMedia: activePlayer !== null
     && ((activePlayer.trackTitle || "") !== "" || (activePlayer.trackArtist || "") !== "")
-  readonly property string title: hasMedia ? (activePlayer.trackTitle || "Unknown track") : "Nothing playing"
+  readonly property string title: hasMedia ? (activePlayer.trackTitle || I18n.tr("media.unknownTrack")) : I18n.tr("media.nothingPlaying")
   readonly property string artist: hasMedia
-    ? (activePlayer.trackArtist || activePlayer.identity || "Unknown artist") : "Start Spotify or another player"
+    ? (activePlayer.trackArtist || activePlayer.identity || I18n.tr("media.unknownArtist")) : I18n.tr("media.startPlayer")
   readonly property string album: hasMedia ? (activePlayer.trackAlbum || "") : ""
   readonly property string artUrl: hasMedia ? (activePlayer.trackArtUrl || "") : ""
   readonly property string playIcon: activePlayer && activePlayer.isPlaying ? "󰏤" : "󰐊"
@@ -72,7 +73,7 @@ BorderSurface {
   Column {
     anchors.fill: parent
     anchors.margins: Style.space(14)
-    spacing: Style.space(5)
+    spacing: Style.space(4)
 
     Row {
       width: parent.width
@@ -80,7 +81,7 @@ BorderSurface {
 
       Text {
         width: parent.width - cat.width
-        text: root.hasMedia ? "NOW PLAYING" : "MEDIA"
+        text: root.hasMedia ? I18n.tr("media.nowPlaying") : I18n.tr("media.label")
         color: Color.accent
         font.family: root.bar.fontFamily
         font.pixelSize: Style.font.caption
@@ -359,5 +360,6 @@ BorderSurface {
         anchors.verticalCenter: parent.verticalCenter
       }
     }
+
   }
 }

@@ -2,6 +2,8 @@ import QtQuick
 import Quickshell
 import qs.Commons
 import qs.Ui
+import "Dates.js" as Dates
+import "I18n.js" as I18n
 
 BarWidget {
   id: root
@@ -12,7 +14,7 @@ BarWidget {
   readonly property var weatherPanel: weatherLoader.item
   readonly property bool hasMedia: activePlayer !== null
     && ((activePlayer.trackTitle || "") !== "" || (activePlayer.trackArtist || "") !== "")
-  readonly property string mediaTitle: hasMedia ? (activePlayer.trackTitle || "Unknown track") : ""
+  readonly property string mediaTitle: hasMedia ? (activePlayer.trackTitle || I18n.tr("media.unknownTrack")) : ""
   readonly property string playIcon: activePlayer && activePlayer.isPlaying ? "󰏤" : "󰐊"
   readonly property string weatherIcon: weatherPanel && weatherPanel.label !== ""
     ? weatherPanel.label : "󰖐"
@@ -22,6 +24,12 @@ BarWidget {
   property bool opened: false
   property date now: new Date()
   property bool popoutSwitchClosing: false
+
+  // Snap the calendar back to the current month/day whenever the dashboard
+  // opens; otherwise shownDate/today stay on whatever day the shell started.
+  onOpenedChanged: {
+    if (opened && dashboard) dashboard.resetCalendar()
+  }
 
   function open() { opened = true }
   function close() { opened = false }
@@ -48,7 +56,7 @@ BarWidget {
   }
 
   function barLabel() {
-    var clock = Qt.formatDateTime(now, "ddd HH:mm")
+    var clock = Dates.compactDateTime(now)
     var weather = weatherIcon + (weatherTemp !== "" ? " " + weatherTemp : "")
     var media = hasMedia ? playIcon + " " + shortText(mediaTitle, 18) : ""
     if (vertical) return weatherIcon
@@ -67,7 +75,7 @@ BarWidget {
   onBarChanged: injectWeather()
 
   Timer {
-    interval: 30000
+    interval: 1000
     repeat: true
     running: true
     triggeredOnStart: true
@@ -94,10 +102,11 @@ BarWidget {
     id: pill
     anchors.fill: parent
     bar: root.bar
-    text: root.barLabel()
-    active: root.opened
-    horizontalMargin: 7
-    tooltipText: "Dashboard\nKlik: buka · Tengah: play/pause · Kanan: refresh cuaca"
+    labelVisible: false
+    hasVisualContent: true
+    fixedWidth: pillBg.implicitWidth + Style.space(6)
+    fixedHeight: root.barSize || Style.space(26)
+    tooltipText: I18n.tr("bar.tooltip")
 
     onPressed: function(button) {
       if (button === Qt.MiddleButton) root.mediaAction("playPause")
@@ -107,6 +116,59 @@ BarWidget {
 
     onWheelMoved: function(delta) {
       root.mediaAction(delta > 0 ? "previous" : "next")
+    }
+
+    // Pill in the SSH style: solid Color.accent background, Color.background
+    // text. The accent gets denser while the dashboard is open.
+    Rectangle {
+      id: pillBg
+      anchors.centerIn: parent
+      implicitWidth: pillRow.implicitWidth + Style.space(18)
+      implicitHeight: Math.max(Style.space(20), (root.barSize || Style.space(26)) - Style.space(6))
+      radius: Style.space(8)
+      color: Color.accent
+      opacity: root.opened ? 1 : 0.92
+
+      Behavior on opacity { NumberAnimation { duration: 120 } }
+
+      Row {
+        id: pillRow
+        anchors.centerIn: parent
+        spacing: Style.space(7)
+
+        Text {
+          visible: !root.vertical
+          text: Dates.compactDateTime(root.now)
+          color: Color.background
+          font.family: Style.font.family
+          font.pixelSize: Style.font.bodySmall
+          font.bold: true
+        }
+        Text {
+          visible: !root.vertical
+          text: "·"
+          color: Color.background
+          opacity: 0.55
+          font.family: Style.font.family
+          font.pixelSize: Style.font.bodySmall
+        }
+        Text {
+          text: root.vertical
+            ? root.weatherIcon
+            : root.weatherIcon + (root.weatherTemp !== "" ? " " + root.weatherTemp : "")
+          color: Color.background
+          font.family: Style.font.family
+          font.pixelSize: Style.font.bodySmall
+          font.bold: true
+        }
+        Text {
+          visible: root.hasMedia && !root.vertical
+          text: root.playIcon + " " + root.shortText(root.mediaTitle, 18)
+          color: Color.background
+          font.family: Style.font.family
+          font.pixelSize: Style.font.bodySmall
+        }
+      }
     }
   }
 
@@ -153,7 +215,7 @@ BarWidget {
     owner: root
     open: root.opened
     centerOnBar: true
-    contentWidth: popup.fittedContentWidth(Style.space(760))
+    contentWidth: popup.fittedContentWidth(dashboard.implicitWidth)
     contentHeight: popup.fittedContentHeight(dashboard.implicitHeight)
 
     Dashboard {
@@ -163,6 +225,7 @@ BarWidget {
       weather: root.weatherPanel
       mediaService: root.mediaService
       now: root.now
+      opened: root.opened
     }
   }
 }
